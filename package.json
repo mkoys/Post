@@ -1,0 +1,15 @@
+{
+  "name": "post",
+  "version": "1.0.0",
+  "description": "A feather weight web framework",
+  "main": "post.js",
+  "type": "module",
+  "scripts": {
+    "test": "node post.js"
+  },
+  "keywords": [
+    "Post"
+  ],
+  "author": "Mkoys",
+  "license": "MIT"
+}
