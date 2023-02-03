@@ -113,8 +113,8 @@ class Post {
                 const newMiddleware = [...this.map.get(this.middlewareTag), arguments[index]];
                 this.map.set(this.middlewareTag, newMiddleware);
             } else if (typeof arguments[index] === "object") {
-                const middleware = this.map.get("MIDDLEWARE");
-                const middlewareRouter = arguments[index].map.get("MIDDLEWARE");
+                const middleware = this.map.get(this.middlewareTag);
+                const middlewareRouter = arguments[index].map.get(this.middlewareTag);
                 const newMiddleware = [...middleware, ...middlewareRouter];
                 if (url) {
                     arguments[index].map.forEach((value, key) => {
