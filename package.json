@@ -11,5 +11,13 @@
     "Post"
   ],
   "author": "Mkoys",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mkoys/Post.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mkoys/Post/issues"
+  },
+  "homepage": "https://github.com/mkoys/Post#readme"
 }
