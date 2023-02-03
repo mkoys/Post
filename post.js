@@ -158,9 +158,7 @@ class Post {
     }
 }
 
-export function post(args) { return new Post(args) };
-
-export function staticHandler(pathString) {
+function staticHandler(pathString) {
     const router = new Post();
 
     mapDirectory(pathString, "");
@@ -210,4 +208,9 @@ export function staticHandler(pathString) {
     }
 
     return router;
+}
+
+export default {
+    app: (args) => new Post(args),
+    static: staticHandler,
 }
