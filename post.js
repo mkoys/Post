@@ -2,18 +2,21 @@ import http from "http";
 
 class Post {
     constructor() {
-        this.server = http.createServer((request, response) => this.requestHandler(request, response));
+        this.server = http.createServer((request, response) => this.#requestHandler(request, response));
         this.routeDelimiter = "$";
         this.middlewareTag = "MIDDLEWARE"
         this.map = new Map();
         this.map.set(this.middlewareTag, []);
     }
 
-    requestHandler(request, response) {
-        let handlerStack = this.#createStack(request.url, request.method);
-        handlerStack = this.#hydrateStack(handlerStack);
-        const customResponse = this.#createReponse(response);
-        this.#executeStack(handlerStack, request, customResponse);
+    #requestHandler(request, response) {
+        this.#getBody(request, body => {
+            request.body = body;
+            let handlerStack = this.#createStack(request.url, request.method);
+            handlerStack = this.#hydrateStack(handlerStack);
+            const customResponse = this.#createReponse(response);
+            this.#executeStack(handlerStack, request, customResponse);
+        });
     }
 
     #executeStack(stack, request, response) {
@@ -78,6 +81,15 @@ class Post {
         }
 
         return newResponse;
+    }
+
+    #getBody(request, callback) {
+        let body = [];
+        request.on('data', (chunk) => body.push(chunk));
+        request.on('end', () => {
+            body = Buffer.concat(body).toString();
+            callback(body);
+        });
     }
 
     use() {

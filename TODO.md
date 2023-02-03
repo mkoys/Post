@@ -3,4 +3,4 @@
 - [x] Basic routing
 - [x] Middleware
 - [x] Custom response
-- [ ] Request body
+- [x] Request body
