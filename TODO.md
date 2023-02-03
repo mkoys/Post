@@ -6,4 +6,4 @@
 - [x] Request body
 - [x] Static files
 - [x] Write README
-- [ ] Comment code
+- [x] Comment code

@@ -50,6 +50,7 @@ Routes can be added for specific HTTP methods (GET, POST, PUT, DELETE, etc.). If
 app.get("/", (req, res) => {
     res.send("Hello World");
 });
+
 // Handle HTTP POST requests
 app.post("/", (req, res) => {
     // Get data from request

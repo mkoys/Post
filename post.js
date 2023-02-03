@@ -11,6 +11,7 @@ class Post {
         this.map.set(this.middlewareTag, []);
     }
 
+    // Main request handler
     #requestHandler(request, response) {
         this.#getBody(request, body => {
             request.body = body;
@@ -21,6 +22,7 @@ class Post {
         });
     }
 
+    // Executes stack items
     #executeStack(stack, request, response) {
         let stackPointer = -1;
 
@@ -32,6 +34,7 @@ class Post {
         }
     }
 
+    // Creates stack based on url and method
     #createStack(url, method) {
         let stack = [];
 
@@ -49,6 +52,7 @@ class Post {
         return stack;
     }
 
+    // Unfolds stack items
     #hydrateStack(stack) {
         const newStack = [];
         for (const handler of stack) {
@@ -61,6 +65,7 @@ class Post {
         return newStack;
     }
 
+    // Custom response
     #createReponse(response) {
         let newResponse = {};
 
@@ -87,6 +92,7 @@ class Post {
         return newResponse;
     }
 
+    // Creates body on request
     #getBody(request, callback) {
         let body = [];
         request.on('data', (chunk) => body.push(chunk));
@@ -96,68 +102,77 @@ class Post {
         });
     }
 
+    // Use middleware and ingest routers
     use() {
-        let index = 0;
+        let argumentIndex = 0;
 
-        while (index < arguments.length) {
+        while (argumentIndex < arguments.length) {
             let url = false;
 
-            if (typeof arguments[index] === "string") {
-                this.map.set(this.middlewareTag + this.routeDelimiter + arguments[index], arguments[index + 1]);
+            if (typeof arguments[argumentIndex] === "string") {
+                this.map.set(this.middlewareTag + this.routeDelimiter + arguments[argumentIndex], arguments[argumentIndex + 1]);
                 url = true;
-                index++;
+                argumentIndex++;
             }
 
-            if (typeof arguments[index] === "function" && !url) {
-
-                const newMiddleware = [...this.map.get(this.middlewareTag), arguments[index]];
+            if (typeof arguments[argumentIndex] === "function" && !url) {
+                const newMiddleware = [...this.map.get(this.middlewareTag), arguments[argumentIndex]];
                 this.map.set(this.middlewareTag, newMiddleware);
-            } else if (typeof arguments[index] === "object") {
+            } else if (typeof arguments[argumentIndex] === "object") {
                 const middleware = this.map.get(this.middlewareTag);
-                const middlewareRouter = arguments[index].map.get(this.middlewareTag);
+                const middlewareRouter = arguments[argumentIndex].map.get(this.middlewareTag);
                 const newMiddleware = [...middleware, ...middlewareRouter];
+
                 if (url) {
-                    arguments[index].map.forEach((value, key) => {
+                    arguments[argumentIndex].map.forEach((value, key) => {
                         const splitKey = key.split(this.routeDelimiter);
+
                         if (splitKey[0] !== this.middlewareTag) {
-                            splitKey[1] = arguments[index - 1] + splitKey[1];
+                            splitKey[1] = arguments[argumentIndex - 1] + splitKey[1];
                             const newKey = splitKey.join("$");
                             this.map.set(newKey, value);
                         }
                     });
-                } else { arguments[index].map.forEach((value, key) => this.map.set(key, value)) }
+                } else { arguments[argumentIndex].map.forEach((value, key) => this.map.set(key, value)) }
                 this.map.set(this.middlewareTag, newMiddleware);
             }
 
-            index++;
+            argumentIndex++;
         }
     }
 
+    // HTTP server listen on port
     listen(port, callback) {
         this.server.listen(port, callback);
     }
 
+    // HTTP handler for all method types
     all(route, handler) {
         this.map.set(route, handler);
     }
 
+    // HTTP GET handler
     get(route, handler) {
         this.map.set("GET" + this.routeDelimiter + route, handler);
     }
 
+    // HTTP POST handler
     post(route, handler) {
         this.map.set("POST" + this.routeDelimiter + route, handler);
     }
 
+    // HTTP PUT handler
     put(route, handler) {
         this.map.set("PUT" + this.routeDelimiter + route, handler);
     }
 
+    // HTTP DELETE handler
     delete(route, handler) {
         this.map.set("DELETE" + this.routeDelimiter + route, handler);
     }
 }
 
+// Static file handler
 function staticHandler(pathString) {
     const router = new Post();
 
@@ -210,6 +225,7 @@ function staticHandler(pathString) {
     return router;
 }
 
+// Exports
 export default {
     app: (args) => new Post(args),
     static: staticHandler,
