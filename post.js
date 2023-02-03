@@ -1,4 +1,6 @@
 import http from "http";
+import fs from "fs";
+import path from "path";
 
 class Post {
     constructor() {
@@ -80,6 +82,8 @@ class Post {
             response.end();
         }
 
+        newResponse.response = response;
+
         return newResponse;
     }
 
@@ -96,11 +100,32 @@ class Post {
         let index = 0;
 
         while (index < arguments.length) {
+            let url = false;
+
             if (typeof arguments[index] === "string") {
                 this.map.set(this.middlewareTag + this.routeDelimiter + arguments[index], arguments[index + 1]);
+                url = true;
                 index++;
-            } else if (typeof arguments[index] === "function") {
-                const newMiddleware = [...this.map.get(this.middlewareTag), arguments[index]]
+            }
+
+            if (typeof arguments[index] === "function" && !url) {
+
+                const newMiddleware = [...this.map.get(this.middlewareTag), arguments[index]];
+                this.map.set(this.middlewareTag, newMiddleware);
+            } else if (typeof arguments[index] === "object") {
+                const middleware = this.map.get("MIDDLEWARE");
+                const middlewareRouter = arguments[index].map.get("MIDDLEWARE");
+                const newMiddleware = [...middleware, ...middlewareRouter];
+                if (url) {
+                    arguments[index].map.forEach((value, key) => {
+                        const splitKey = key.split(this.routeDelimiter);
+                        if (splitKey[0] !== this.middlewareTag) {
+                            splitKey[1] = arguments[index - 1] + splitKey[1];
+                            const newKey = splitKey.join("$");
+                            this.map.set(newKey, value);
+                        }
+                    });
+                } else { arguments[index].map.forEach((value, key) => this.map.set(key, value)) }
                 this.map.set(this.middlewareTag, newMiddleware);
             }
 
@@ -133,4 +158,56 @@ class Post {
     }
 }
 
-export default (args) => new Post(args);
+export function post(args) { return new Post(args) };
+
+export function staticHandler(pathString) {
+    const router = new Post();
+
+    mapDirectory(pathString, "");
+
+    function mapDirectory(directory, url) {
+        const isDirectory = fs.lstatSync(directory).isDirectory();
+
+        if (isDirectory) {
+            const files = fs.readdirSync(directory, { encoding: "utf-8" });
+
+            files.forEach(file => {
+                const currentPath = path.join(directory, file);
+                const isDirectory = fs.lstatSync(currentPath).isDirectory();
+
+                if (isDirectory) {
+                    mapDirectory(currentPath, url + "/" + file);
+                } else {
+                    const currentPath = path.join(directory, file);
+                    handle(currentPath, url + "/" + file);
+                }
+            });
+        } else {
+            handle(directory, url + "/" + file)
+        }
+    }
+
+    function handle(pathString, url) {
+        router.get(url, (req, res) => {
+            res.response.setHeader("Content-type", getType(pathString));
+            res.response.write(fs.readFileSync(pathString));
+            res.response.end();
+        });
+    }
+
+    function getType(filePath) {
+        switch (path.extname(filePath)) {
+            case ".html": return "text/html"; break;
+            case ".css": return "text/css"; break;
+            case ".js": return "application/javascript"; break;
+            case ".json": return "application/json"; break;
+            case ".png": return "application/png"; break;
+            case ".jpg": return "application/jpeg"; break;
+            case ".jpeg": return "application/jpeg"; break;
+            case ".gif": return "application/gif"; break;
+            default: return "text"; break;
+        }
+    }
+
+    return router;
+}
