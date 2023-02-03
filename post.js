@@ -12,7 +12,8 @@ class Post {
     requestHandler(request, response) {
         let handlerStack = this.#createStack(request.url, request.method);
         handlerStack = this.#hydrateStack(handlerStack);
-        this.#executeStack(handlerStack, request, response);
+        const customResponse = this.#createReponse(response);
+        this.#executeStack(handlerStack, request, customResponse);
     }
 
     #executeStack(stack, request, response) {
@@ -45,24 +46,48 @@ class Post {
 
     #hydrateStack(stack) {
         const newStack = [];
-        for(const handler of stack) {
-            if(typeof handler === "function") {
+        for (const handler of stack) {
+            if (typeof handler === "function") {
                 newStack.push(handler);
-            }else {
+            } else {
                 newStack.push(...handler);
             }
         }
         return newStack;
     }
 
+    #createReponse(response) {
+        let newResponse = {};
+
+        newResponse.send = (message) => {
+            response.write(message);
+            response.end();
+        }
+
+        newResponse.sendStatus = (statusCode) => {
+            response.statusCode = statusCode;
+            response.end();
+        }
+
+        newResponse.json = (message) => {
+            try { message = JSON.stringify(message) }
+            catch (error) { console.error(error) }
+            finally { response.setHeader("Content-Type", "application/json") }
+            response.write(message);
+            response.end();
+        }
+
+        return newResponse;
+    }
+
     use() {
         let index = 0;
-        
-        while(index < arguments.length) {
-            if(typeof arguments[index] === "string") {
+
+        while (index < arguments.length) {
+            if (typeof arguments[index] === "string") {
                 this.map.set(this.middlewareTag + this.routeDelimiter + arguments[index], arguments[index + 1]);
                 index++;
-            }else if(typeof arguments[index] === "function") {
+            } else if (typeof arguments[index] === "function") {
                 const newMiddleware = [...this.map.get(this.middlewareTag), arguments[index]]
                 this.map.set(this.middlewareTag, newMiddleware);
             }
