@@ -3,8 +3,10 @@ import http from "http";
 class Post {
     constructor() {
         this.server = http.createServer((request, response) => this.requestHandler(request, response));
-        this.map = new Map();
         this.routeDelimiter = "$";
+        this.middlewareTag = "MIDDLEWARE"
+        this.map = new Map();
+        this.map.set(this.middlewareTag, []);
     }
 
     requestHandler(request, response) {
@@ -27,9 +29,14 @@ class Post {
     #createStack(url, method) {
         let stack = [];
 
+        const globalMiddleware = this.map.get(this.middlewareTag);
+        const routeMiddleware = this.map.get(this.middlewareTag + this.routeDelimiter + url);
+
         const methodHandler = this.map.get(method + this.routeDelimiter + url);
         const globalHandler = this.map.get(url);
 
+        globalMiddleware && stack.push(globalMiddleware);
+        routeMiddleware && stack.push(routeMiddleware);
         methodHandler && stack.push(methodHandler);
         globalHandler && stack.push(globalHandler);
 
@@ -46,6 +53,22 @@ class Post {
             }
         }
         return newStack;
+    }
+
+    use() {
+        let index = 0;
+        
+        while(index < arguments.length) {
+            if(typeof arguments[index] === "string") {
+                this.map.set(this.middlewareTag + this.routeDelimiter + arguments[index], arguments[index + 1]);
+                index++;
+            }else if(typeof arguments[index] === "function") {
+                const newMiddleware = [...this.map.get(this.middlewareTag), arguments[index]]
+                this.map.set(this.middlewareTag, newMiddleware);
+            }
+
+            index++;
+        }
     }
 
     listen(port, callback) {

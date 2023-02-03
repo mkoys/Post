@@ -1,4 +1,4 @@
 #Todo
 
 - [x] Basic routing
-- [ ] Middleware
+- [x] Middleware
