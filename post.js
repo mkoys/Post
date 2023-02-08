@@ -175,6 +175,7 @@ class Post {
 // Static file handler
 function staticHandler(pathString) {
     const router = new Post();
+    const delimiter = process.platform === "win32" ? "\\" : "/"; 
 
     mapDirectory(pathString, "");
 
@@ -189,14 +190,14 @@ function staticHandler(pathString) {
                 const isDirectory = fs.lstatSync(currentPath).isDirectory();
 
                 if (isDirectory) {
-                    mapDirectory(currentPath, url + "/" + file);
+                    mapDirectory(currentPath, url + delimiter + file);
                 } else {
                     const currentPath = path.join(directory, file);
-                    handle(currentPath, url + "/" + file);
+                    handle(currentPath, url + delimiter + file);
                 }
             });
         } else {
-            handle(directory, url + "/" + file)
+            handle(directory, url + delimiter + file)
         }
     }
 
