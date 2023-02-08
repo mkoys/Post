@@ -175,7 +175,7 @@ class Post {
 // Static file handler
 function staticHandler(pathString) {
     const router = new Post();
-    const delimiter = process.platform === "win32" ? "\\" : "/"; 
+    const delimiter = "/"; 
 
     mapDirectory(pathString, "");
 
