@@ -74,6 +74,11 @@ class Post {
             response.end();
         }
 
+        newResponse.redirect = (location) => {
+            response.setHeader("Location", location);
+            response.status(301).end();
+        }
+
         newResponse.sendStatus = (statusCode) => {
             response.statusCode = statusCode;
             response.end();
@@ -175,7 +180,7 @@ class Post {
 // Static file handler
 function staticHandler(pathString) {
     const router = new Post();
-    const delimiter = "/"; 
+    const delimiter = "/";
 
     mapDirectory(pathString, "");
 

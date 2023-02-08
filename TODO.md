@@ -7,3 +7,4 @@
 - [x] Static files
 - [x] Write README
 - [x] Comment code
+- [x] Redirect
