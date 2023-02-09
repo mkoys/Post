@@ -15,7 +15,8 @@ class Post {
     #requestHandler(request, response) {
         this.#getBody(request, body => {
             request.body = body;
-            let handlerStack = this.#createStack(request.url, request.method);
+            const method = request.headers["access-control-request-method"] || request.method;
+            let handlerStack = this.#createStack(request.url, method);
             handlerStack = this.#hydrateStack(handlerStack);
             const customResponse = this.#createReponse(response);
             this.#executeStack(handlerStack, request, customResponse);
@@ -69,7 +70,8 @@ class Post {
     #createReponse(response) {
         let newResponse = {};
 
-        response.setHeader("Access-Control-Allow-Origin", "*")
+        response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Headers", "*");
 
         newResponse.send = (message) => {
             response.write(message);
