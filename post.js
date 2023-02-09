@@ -76,7 +76,7 @@ class Post {
 
         newResponse.redirect = (location) => {
             response.setHeader("Location", location);
-            response.status(301).end();
+            response.sendStatus(301);
         }
 
         newResponse.sendStatus = (statusCode) => {
