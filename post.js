@@ -87,7 +87,10 @@ class Post {
         newResponse.json = (message) => {
             try { message = JSON.stringify(message) }
             catch (error) { console.error(error) }
-            finally { response.setHeader("Content-Type", "application/json") }
+            finally {
+                response.setHeader("Content-Type", "application/json");
+                response.setHeader("Content-Length", message.length);
+            }
             response.write(message);
             response.end();
         }
