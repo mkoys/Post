@@ -74,14 +74,14 @@ class Post {
             response.end();
         }
 
-        newResponse.redirect = (location) => {
-            response.setHeader("Location", location);
-            response.sendStatus(301);
-        }
-
         newResponse.sendStatus = (statusCode) => {
             response.statusCode = statusCode;
             response.end();
+        }
+
+        newResponse.redirect = (location) => {
+            response.setHeader("Location", location);
+            newResponse.sendStatus(301);
         }
 
         newResponse.json = (message) => {
