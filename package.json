@@ -1,6 +1,6 @@
 {
   "name": "@mkoys/post",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "A feather weight web framework",
   "main": "post.js",
   "type": "module",

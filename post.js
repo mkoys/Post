@@ -69,6 +69,8 @@ class Post {
     #createReponse(response) {
         let newResponse = {};
 
+        response.setHeader("Access-Control-Allow-Origin", "*")
+
         newResponse.send = (message) => {
             response.write(message);
             response.end();
@@ -91,7 +93,8 @@ class Post {
             }
             finally {
                 response.setHeader("Content-Type", "application/json");
-                response.writeHead(200);
+                response.statusCode = 200;
+                console.log(message);
                 response.end(message);
             }
         }
