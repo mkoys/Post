@@ -96,7 +96,6 @@ class Post {
             finally {
                 response.setHeader("Content-Type", "application/json");
                 response.statusCode = 200;
-                console.log(message);
                 response.end(message);
             }
         }
