@@ -89,7 +89,7 @@ class Post {
             catch (error) { console.error(error) }
             finally {
                 response.setHeader("Content-Type", "application/json");
-                response.setHeader("Content-Length", message.length);
+                response.setHeader("Content-Length", JSON.stringify(message).length);
             }
             response.write(message);
             response.end();
